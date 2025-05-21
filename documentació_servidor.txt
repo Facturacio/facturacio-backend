@@ -1,0 +1,481 @@
+FORMAT: 1A
+
+# API Facturació
+
+Aquesta API permet gestionar un sistema de facturació amb autenticació d'usuaris, gestió de dades personals, clients, productes i factures.
+
+## Autenticació i Sessió [/]
+
+### Iniciar Sessió [POST /log_in]
+Permet a un usuari iniciar sessió.
+
++ Request (application/json)
+    + Attributes
+        - email (string, required) - Correu electrònic de l'usuari
+        - contrasenya (string, required) - Contrasenya de l'usuari
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "Login correcte"
+
++ Response 400 (application/json)
+    + Attributes
+        - missatge: "Si us plau, completeu tots els camps"
+
++ Response 401 (application/json)
+    + Attributes
+        - missatge: "Contrasenya incorrecta"
+
++ Response 404 (application/json)
+    + Attributes
+        - missatge: "Usuari no trobat"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Registrar Usuari [POST /sign_in]
+Permet registrar un nou usuari al sistema.
+
++ Request (application/json)
+    + Attributes
+        - email (string, required) - Correu electrònic de l'usuari (màx 128 caràcters)
+        - contrasenya (string, required) - Contrasenya de l'usuari (màx 128 caràcters, mínim 8 caràcters amb majúscules, minúscules, números i símbols)
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "Registre correcte"
+
++ Response 400 (application/json)
+    + Attributes
+        - missatge: "El correu electrònic no és vàlid" (o altres errors de validació)
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Tancar Sessió [POST /logout]
+Tanca la sessió de l'usuari actual.
+
++ Response 200
+    + Body
+        "Sesión cerrada correctamente"
+
++ Response 500
+    + Body
+        "Error al cerrar la sesión"
+
+### Verificar Sessió [POST /logged]
+Verifica si l'usuari està autenticat.
+
++ Response 200 (application/json)
+    + Attributes
+        - logged: true
+        - user: (string) - Email de l'usuari
+
++ Response 401 (application/json)
+    + Attributes
+        - logged: false
+
+## Dades Personals [/dades_personals]
+
+### Obtenir Dades Personals [GET /dades_personals]
+Retorna les dades personals de l'usuari autenticat.
+
++ Response 200 (application/json)
+    + Attributes
+        - camps: (array[string]) - Camps obligatoris
+        - valors: (array[object]) - Valors dels camps obligatoris
+        - camps_opcionals: (array[string]) - Camps opcionals
+        - valors_opcionals: (array[object]) - Valors dels camps opcionals
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Actualitzar Dades Personals [PATCH /dades_personals]
+Actualitza les dades personals de l'usuari.
+
++ Request (application/json)
+    + Attributes
+        - obligatoris: (object, optional) - Camps obligatoris a actualitzar
+        - opcionals: (object, optional) - Camps opcionals a actualitzar
+        - eliminats: (array[string], optional) - Camps opcionals a eliminar
+        - nous_valor: (object, optional) - Nous camps opcionals a afegir
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "Dades personals actualitzades correctament"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+## Clients [/dades_clients]
+
+### Obtenir Clients [GET /dades_clients]
+Retorna tots els clients de l'usuari autenticat.
+
++ Response 200 (application/json)
+    + Attributes
+        - camps: (array[string]) - Camps obligatoris
+        - camps_opcionals: (array[string]) - Camps opcionals
+        - valors: (array[object]) - Dades dels clients
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Obtenir Camps Clients [GET /camps-clients]
+Retorna els camps disponibles per als clients.
+
++ Response 200 (application/json)
+    + Attributes
+        - camps: (array[string]) - Camps obligatoris
+        - camps_opcionals: (array[string]) - Camps opcionals
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Modificar Client [PATCH /modificar_client]
+Modifica les dades d'un client existent.
+
++ Request (application/json)
+    + Attributes
+        - cambios: (object, optional) - Canvis en camps obligatoris
+        - cambiosOpcionales: (object, optional) - Canvis en camps opcionals
+        - dniCliente: (string, required) - DNI del client a modificar
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "Client modificado correctamente"
+
++ Response 400 (application/json)
+    + Attributes
+        - missatge: "Datos no válidos para la actualización"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Actualitzar Camps Clients [PATCH /camps-clients]
+Actualitza els camps opcionals per als clients.
+
++ Request (application/json)
+    + Attributes
+        - eliminats: (array[string], optional) - Camps opcionals a eliminar
+        - nous: (array[string], optional) - Nous camps opcionals a afegir
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "Client modificado correctamente"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+## Productes [/camps-productes]
+
+### Obtenir Camps Productes [GET /camps-productes]
+Retorna els camps disponibles per als productes.
+
++ Response 200 (application/json)
+    + Attributes
+        - camps: (array[string]) - Camps obligatoris
+        - camps_opcionals: (array[string]) - Camps opcionals
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+
+## Productes [/]
+
+### Obtenir Dades Productes [GET /dades_productes]
+Retorna tots els productes de l'usuari amb els seus impostos associats.
+
++ Response 200 (application/json)
+    + Attributes
+        - camps: (array[string]) - Camps obligatoris
+        - camps_opcionals: (array[string]) - Camps opcionals
+        - valors: (array[object]) - Llista de productes amb dades
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Actualitzar Camps Productes [PATCH /camps-productes]
+Actualitza els camps opcionals per als productes.
+
++ Request (application/json)
+    + Attributes
+        - eliminats: (array[string], optional) - Camps opcionals a eliminar
+        - nous: (array[string], optional) - Nous camps opcionals a afegir
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "producte modificado correctamente"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Modificar Producte [PATCH /modificar_producte]
+Modifica un producte existent amb els seus impostos.
+
++ Request (application/json)
+    + Attributes
+        - cambios: (object, optional) - Canvis en camps obligatoris
+        - cambiosOpcionales: (object, optional) - Canvis en camps opcionals
+        - dniCliente: (string, required) - Codi del producte a modificar
+        - impostosProducteNous: (array, optional) - Nous impostos a afegir
+        - impostosProducteEliminats: (array, optional) - Impostos a eliminar
+        - impostosProducteModificats: (array, optional) - Impostos a modificar
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "Producte modificado correctamente"
+
++ Response 400 (application/json)
+    + Attributes
+        - missatge: "Datos no válidos para la actualización"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Eliminar Producte [DELETE /eliminar_producte]
+Elimina un producte del sistema.
+
++ Request (application/json)
+    + Attributes
+        - dniCliente: (string, required) - Codi del producte a eliminar
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "Producte eliminat correctament"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Afegir Producte [POST /afegir_producte]
+Afegeix un nou producte al sistema.
+
++ Request (application/json)
+    + Attributes
+        - cambios: (object, required) - Dades obligatòries del producte
+        - cambiosOpcionales: (object, optional) - Dades opcionals del producte
+        - impostosProducteNous: (array, optional) - Llista d'impostos del producte
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "producte insertat correctament"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+## Sèries [/]
+
+### Obtenir Dades Sèries [GET /dades_series]
+Retorna totes les sèries de facturació de l'usuari.
+
++ Response 200 (application/json)
+    + Attributes
+        - camps: (array[string]) - Camps obligatoris
+        - camps_opcionals: (array[string]) - Camps opcionals
+        - valors: (array[object]) - Llista de sèries
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Eliminar Sèrie [DELETE /eliminar_serie]
+Elimina una sèrie de facturació.
+
++ Request (application/json)
+    + Attributes
+        - dniCliente: (string, required) - Codi de la sèrie a eliminar
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "serie eliminat correctament"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Afegir Sèrie [POST /afegir_serie]
+Afegeix una nova sèrie de facturació.
+
++ Request (application/json)
+    + Attributes
+        - cambios: (object, required) - Dades obligatòries de la sèrie
+        - cambiosOpcionales: (object, optional) - Dades opcionals de la sèrie
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "Sèrie inserida correctament"
+
++ Response 400 (application/json)
+    + Attributes
+        - missatge: "Datos no válidos para la inserción"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+## Factures [/]
+
+### Obtenir Camps Factures [GET /camps-factures]
+Retorna els camps disponibles per a les factures.
+
++ Response 200 (application/json)
+    + Attributes
+        - camps: (array[string]) - Camps obligatoris
+        - camps_opcionals: (array[string]) - Camps opcionals
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Actualitzar Camps Factures [PATCH /camps-factures]
+Actualitza els camps opcionals per a les factures.
+
++ Request (application/json)
+    + Attributes
+        - eliminats: (array[string], optional) - Camps opcionals a eliminar
+        - nous: (array[string], optional) - Nous camps opcionals a afegir
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "factura modificado correctamente"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Afegir Factura a Sèrie [POST /afegir_factura_serie]
+Crea o actualitza una factura dins d'una sèrie.
+
++ Request (application/json)
+    + Attributes
+        - cambios: (object, required) - Dades obligatòries de la factura
+        - cambiosOpcionales: (object, optional) - Dades opcionals de la factura
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "Factura insertada correctament"
+        - id: (number) - ID de la factura
+        - prefixSerie: (string) - Prefix de la sèrie
+        - sufixSerie: (string) - Sufix de la sèrie
+
++ Response 400 (application/json)
+    + Attributes
+        - missatge: "Datos no válidos para la inserción"
+
++ Response 409 (application/json)
+    + Attributes
+        - missatge: "Ja existeix una factura amb aquest número en aquesta sèrie"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Obtenir Dades Factura per ID [GET /dades_factura_id]
+Retorna les dades d'una factura específica.
+
++ Parameters
+    - id: (number, required) - ID de la factura
+
++ Response 200 (application/json)
+    + Attributes
+        - camps: (array[string]) - Camps obligatoris
+        - camps_opcionals: (array[string]) - Camps opcionals
+        - valors: (object) - Dades de la factura
+
++ Response 400 (application/json)
+    + Attributes
+        - missatge: "ID de factura no proporcionado"
+
++ Response 404 (application/json)
+    + Attributes
+        - missatge: "Factura no trobada"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Afegir Client a Factura [POST /afegir_factura_client]
+Associa un client a una factura existent.
+
++ Request (application/json)
+    + Attributes
+        - facturaId: (number, required) - ID de la factura
+        - clientIdSelect: (string, required) - ID del client
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "Client insertat correctament"
+
++ Response 400 (application/json)
+    + Attributes
+        - missatge: "Datos no válidos para la inserción"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Obtenir Client de Factura [GET /dades_factura_client]
+Retorna l'ID del client associat a una factura.
+
++ Parameters
+    - id: (number, required) - ID de la factura
+
++ Response 200 (application/json)
+    + Attributes
+        - clientId: (string) - ID del client
+
++ Response 400 (application/json)
+    + Attributes
+        - missatge: "ID de factura no proporcionado"
+
++ Response 404 (application/json)
+    + Attributes
+        - missatge: "Factura no trobada"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+## Línies de Factura [/]
+
+### Obtenir Camps Línia Factura [GET /camps-linia-factura]
+Retorna els camps disponibles per a les línies de factura.
+
++ Response 200 (application/json)
+    + Attributes
+        - camps: (array[string]) - Camps obligatoris
+        - camps_opcionals: (array[string]) - Camps opcionals
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
+
+### Actualitzar Camps Línia Factura [PATCH /camps-linia-factura]
+Actualitza els camps opcionals per a les línies de factura.
+
++ Request (application/json)
+    + Attributes
+        - eliminats: (array[string], optional) - Camps opcionals a eliminar
+        - nous: (array[string], optional) - Nous camps opcionals a afegir
+
++ Response 200 (application/json)
+    + Attributes
+        - missatge: "linia factura modificado correctamente"
+
++ Response 500 (application/json)
+    + Attributes
+        - missatge: "Error en el servidor"
